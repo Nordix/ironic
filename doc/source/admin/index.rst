@@ -32,6 +32,7 @@ the services.
    Booting a Ramdisk or an ISO <ramdisk-boot>
    Hardware Burn-in <hardware-burn-in>
    Vendor Passthru <vendor-passthru>
+   Basica Auth support for user-image servers <user-image-basic-auth>
 
 Drivers, Hardware Types and Hardware Interfaces
 -----------------------------------------------

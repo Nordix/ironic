@@ -133,6 +133,42 @@ class HttpImageServiceTestCase(base.TestCase):
                           self.href)
 
     @mock.patch.object(requests, 'head', autospec=True)
+    def test_validate_href_valid_path_valid_basic_auth(self, head_mock):
+        cfg.CONF.set_override('webserver_verify_ca', '/some/path')
+        cfg.CONF.set_override('user_image_server_basic_auth', True,
+                              'deploy')
+        cfg.CONF.set_override('user_image_server_user', 'test', 'deploy')
+        cfg.CONF.set_override('user_image_server_password', 'test',
+                              'deploy')
+        user = cfg.CONF.deploy.user_image_server_user
+        password = cfg.CONF.deploy.user_image_server_password
+        auth_creds = requests.auth.HTTPBasicAuth(user, password)
+        response = head_mock.return_value
+        response.status_code = http_client.OK
+
+        self.service.validate_href(self.href)
+        head_mock.assert_called_once_with(self.href, verify='/some/path',
+                                          timeout=60, auth=auth_creds)
+        response.status_code = http_client.NO_CONTENT
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.validate_href,
+                          self.href)
+        response.status_code = http_client.BAD_REQUEST
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.validate_href,
+                          self.href)
+
+    @mock.patch.object(requests, 'head', autospec=True)
+    def test_validate_href_valid_path_invalid_basic_auth(self, head_mock):
+        cfg.CONF.set_override('webserver_verify_ca', '/some/path')
+        cfg.CONF.set_override('user_image_server_basic_auth', True,
+                              'deploy')
+
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.validate_href,
+                          self.href)
+
+    @mock.patch.object(requests, 'head', autospec=True)
     def test_validate_href_custom_timeout(self, head_mock):
         cfg.CONF.set_override('webserver_connection_timeout', 15)
 
@@ -220,6 +256,41 @@ class HttpImageServiceTestCase(base.TestCase):
         self.assertEqual(new_url, exc.redirect_url)
         head_mock.assert_called_once_with(url, verify=True,
                                           timeout=60)
+
+    def test_verify_basic_auth_cred_format(self):
+        self.assertIsNone(self
+                          .service
+                          .verify_basic_auth_cred_format(self.href,
+                                                         "SpongeBob",
+                                                         "SquarePants"))
+
+    def test_verify_basic_auth_cred_format_empty_user(self):
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.verify_basic_auth_cred_format,
+                          self.href,
+                          "",
+                          "SquarePants")
+
+    def test_verify_basic_auth_cred_format_empty_password(self):
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.verify_basic_auth_cred_format,
+                          self.href,
+                          "SpongeBob",
+                          "")
+
+    def test_verify_basic_auth_cred_format_none_user(self):
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.verify_basic_auth_cred_format,
+                          self.href,
+                          None,
+                          "SquarePants")
+
+    def test_verify_basic_auth_cred_format_none_password(self):
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.verify_basic_auth_cred_format,
+                          self.href,
+                          "SpongeBob",
+                          None)
 
     @mock.patch.object(requests, 'head', autospec=True)
     def _test_show(self, head_mock, mtime, mtime_date):
@@ -316,6 +387,40 @@ class HttpImageServiceTestCase(base.TestCase):
         req_get_mock.assert_called_once_with(self.href, stream=True,
                                              verify=False,
                                              timeout=60)
+
+    @mock.patch.object(shutil, 'copyfileobj', autospec=True)
+    @mock.patch.object(requests, 'get', autospec=True)
+    def test_download_success_verify_false_basic_auth_sucess(
+            self, req_get_mock, shutil_mock):
+        cfg.CONF.set_override('webserver_verify_ca', 'False')
+        cfg.CONF.set_override('user_image_server_basic_auth', True,
+                              'deploy')
+        cfg.CONF.set_override('user_image_server_user', 'test', 'deploy')
+        cfg.CONF.set_override('user_image_server_password', 'test',
+                              'deploy')
+        user = cfg.CONF.deploy.user_image_server_user
+        password = cfg.CONF.deploy.user_image_server_password
+        auth_creds = requests.auth.HTTPBasicAuth(user, password)
+        response_mock = req_get_mock.return_value
+        response_mock.status_code = http_client.OK
+        response_mock.raw = mock.MagicMock(spec=io.BytesIO)
+        file_mock = mock.Mock(spec=io.BytesIO)
+        self.service.download(self.href, file_mock)
+        shutil_mock.assert_called_once_with(
+            response_mock.raw.__enter__(), file_mock,
+            image_service.IMAGE_CHUNK_SIZE
+        )
+        req_get_mock.assert_called_once_with(self.href, stream=True,
+                                             verify=False, timeout=60,
+                                             auth=auth_creds)
+
+    def test_download_success_verify_false_basic_auth_failed(self):
+        cfg.CONF.set_override('webserver_verify_ca', 'False')
+        cfg.CONF.set_override('user_image_server_basic_auth', True,
+                              'deploy')
+        file_mock = mock.Mock(spec=io.BytesIO)
+        self.assertRaises(exception.ImageRefValidationFailed,
+                          self.service.download, self.href, file_mock)
 
     @mock.patch.object(shutil, 'copyfileobj', autospec=True)
     @mock.patch.object(requests, 'get', autospec=True)

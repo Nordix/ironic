@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    Introducing basic authentication support for user image link validation and
+    user image download processes. This feature introduces 3 new variables that
+    could be used to enable basic authentication support. The 3 variables are
+    structured such a way that 1 of them 'user_image_server_basic_auth'
+    (boolean) enables (when True) and disables (when False) basic
+    authentication support. The other 2 variables 'user_image_server_password'
+    and 'user_image_server_user' provide basic authentication username and
+    password credentials for user image download processes.
+    'user_image_server_basic_auth' not just enables the feature but enforces
+    checks on the values of the 2 related credentials. When basic
+    authentication support is enabled against the user image server an
+    exception will be raised in case any of the credentials are None or an
+    empty string.

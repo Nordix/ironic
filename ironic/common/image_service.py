@@ -74,6 +74,27 @@ class BaseImageService(object, metaclass=abc.ABCMeta):
 class HttpImageService(BaseImageService):
     """Provides retrieval of disk images using HTTP."""
 
+    @classmethod
+    def verify_basic_auth_cred_format(cls, image_href, user, password):
+        """Verify basic auth credentials used for image head request.
+
+        :param user: Basic auth username
+        :param password: Basic auth password
+        :raises: exception.ImageRefValidationFailed if the credentials are not
+            present
+        """
+
+        if user is None or user == "":
+            raise exception.ImageRefValidationFailed(
+                image_href=image_href,
+                reason="Disk image host's HTTP(S) basic auth username is"
+                       "missing!")
+        elif password is None or password == "":
+            raise exception.ImageRefValidationFailed(
+                image_href=image_href,
+                reason="Disk image host's HTTP(S) basic auth password is"
+                       "missing!")
+
     def validate_href(self, image_href, secret=False):
         """Validate HTTP image reference.
 
@@ -87,6 +108,7 @@ class HttpImageService(BaseImageService):
             this.
         :returns: Response to HEAD request.
         """
+
         output_url = 'secreturl' if secret else image_href
 
         try:
@@ -95,7 +117,19 @@ class HttpImageService(BaseImageService):
         except ValueError:
             verify = CONF.webserver_verify_ca
 
+        head_request_attributes = {
+            "verify": verify,
+            "timeout": CONF.webserver_connection_timeout
+        }
         try:
+            if CONF.deploy.user_image_server_basic_auth:
+                HttpImageService.verify_basic_auth_cred_format(
+                    image_href,
+                    CONF.deploy.user_image_server_user,
+                    CONF.deploy.user_image_server_password)
+                head_request_attributes['auth'] = requests.auth.HTTPBasicAuth(
+                    CONF.deploy.user_image_server_user,
+                    CONF.deploy.user_image_server_password)
             # NOTE(TheJulia): Head requests do not work on things that are not
             # files, but they can be responded with redirects or a 200 OK....
             # We don't want to permit endless redirects either, thus not
@@ -103,8 +137,8 @@ class HttpImageService(BaseImageService):
             # redirects as otherwise we might end up with something like
             # HTTPForbidden or a list of files. Both should be okay to at
             # least know things are okay in a limited fashion.
-            response = requests.head(image_href, verify=verify,
-                                     timeout=CONF.webserver_connection_timeout)
+            response = requests.head(image_href,
+                                     **head_request_attributes)  # nosec B113
 
             if response.status_code == http_client.MOVED_PERMANENTLY:
                 # NOTE(TheJulia): In the event we receive a redirect, we need
@@ -166,9 +200,23 @@ class HttpImageService(BaseImageService):
         except ValueError:
             verify = CONF.webserver_verify_ca
 
+        head_request_attributes = {
+            "stream": True,
+            "verify": verify,
+            "timeout": CONF.webserver_connection_timeout,
+        }
         try:
-            response = requests.get(image_href, stream=True, verify=verify,
-                                    timeout=CONF.webserver_connection_timeout)
+            if CONF.deploy.user_image_server_basic_auth:
+                HttpImageService.verify_basic_auth_cred_format(
+                    image_href,
+                    CONF.deploy.user_image_server_user,
+                    CONF.deploy.user_image_server_password)
+                head_request_attributes['auth'] = requests.auth.HTTPBasicAuth(
+                    CONF.deploy.user_image_server_user,
+                    CONF.deploy.user_image_server_password)
+
+            response = requests.get(image_href,
+                                    **head_request_attributes)  # nosec B113
             if response.status_code != http_client.OK:
                 raise exception.ImageRefValidationFailed(
                     image_href=image_href,
