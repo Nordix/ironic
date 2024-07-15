@@ -329,6 +329,14 @@ class CustomAgentDeploy(agent_base.AgentBaseMixin,
             'agent_cached_deploy_steps')
         oob_steps = self.deploy_steps
 
+        # Check if the deployment step requires custom reboot
+        if step.get('custom_reboot'):
+            task.custom_reboot = True
+        else:
+            LOG.debug('Task %(id)s for %(step)s on %(node)s custom reboot NO',
+                      {'id': id(task), 'step': step.get('step'),
+                       'node': task.node_id})
+
         if conductor_steps.find_step(oob_steps, step):
             return super().execute_deploy_step(task, step)
         elif not agent_running:
@@ -411,8 +419,12 @@ class CustomAgentDeploy(agent_base.AgentBaseMixin,
                         task.driver.power.get_supported_power_states(task))
 
         client = agent_client.get_client(task)
+        custom_reboot = task.custom_reboot
         try:
-            if node.disable_power_off:
+            if custom_reboot:
+                LOG.info('Initiating custom reboot process on node %(node)s',
+                         {'node': node.uuid})
+            elif node.disable_power_off:
                 LOG.info("Node %s does not support power off, locking "
                          "down the agent", node.uuid)
                 client.lockdown(node)
