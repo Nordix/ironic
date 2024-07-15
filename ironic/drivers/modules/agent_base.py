@@ -1177,8 +1177,9 @@ class AgentOobStepsMixin(object):
         """
         can_power_on = (states.POWER_ON in
                         task.driver.power.get_supported_power_states(task))
+        reboot_step = task.custom_reboot
         try:
-            if can_power_on:
+            if can_power_on and not reboot_step:
                 manager_utils.node_power_action(task, states.POWER_ON)
             else:
                 LOG.debug('Not trying to power on node %s that does not '
