@@ -232,6 +232,9 @@ class TaskManager(object):
         self._event = None
         self._saved_node = None
 
+        # custom reboot request during deployment
+        self._custom_reboot = None
+
         try:
             node = objects.Node.get(context, node_id)
             LOG.debug("Attempting to get %(type)s lock on node %(node)s (for "
@@ -252,6 +255,20 @@ class TaskManager(object):
         except Exception:
             self.release_resources()
             raise
+
+    @property
+    def custom_reboot(self):
+        LOG.debug('Custom reboot is %(custom)s on %(node)s on task %(task)s',
+                  {'custom': self._custom_reboot, 'node': self.node_id,
+                   'task': id(self)})
+        return self._custom_reboot
+
+    @custom_reboot.setter
+    def custom_reboot(self, custom_reboot):
+        if custom_reboot:
+            LOG.debug('Custom reboot requested on %(node)s by tak %(task)s',
+                      {'node': self.node_id, 'task': id(self)})
+            self._custom_reboot = custom_reboot
 
     @property
     def node(self):
