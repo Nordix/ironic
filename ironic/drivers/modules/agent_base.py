@@ -386,8 +386,17 @@ def execute_step(task, step, step_type, client=None):
     """
     if client is None:
         client = agent_client.get_client(task)
+
     ports = objects.Port.list_by_node_id(
         task.context, task.node.id)
+    # Check if the deployment step requires custom reboot
+
+    if step.get('custom_reboot'):
+        task.custom_reboot = True
+    else:
+        LOG.debug('Task %(id)s for %(step)s on %(node)s custom reboot NO',
+                  {'id': id(task), 'step': step.get('step'),
+                  'node': task.node_id})
     call = getattr(client, 'execute_%s_step' % step_type)
     result = call(step, task.node, ports)
     if not result.get('command_status'):
@@ -1190,7 +1199,10 @@ class AgentOobStepsMixin(object):
         can_power_on = (states.POWER_ON in
                         task.driver.power.get_supported_power_states(task))
         try:
-            if task.node.disable_power_off:
+            if task.custom_reboot:
+                LOG.info('Initiating custom reboot process on node %(node)s',
+                         {'node': node.uuid})
+            elif task.node.disable_power_off:
                 # We haven't powered off the node yet - reset it now.
                 manager_utils.node_power_action(task, states.REBOOT)
             elif can_power_on:
