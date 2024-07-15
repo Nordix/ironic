@@ -450,6 +450,14 @@ def _get_all_deployment_steps(task, skip_missing=False):
     # Add enabled user steps.
     enabled_user_steps = [s for s in user_steps if s['priority'] > 0]
     steps.extend(enabled_user_steps)
+    custom_reboot_found = False
+    for s in steps:
+        if s.get('custom_reboot'):
+            custom_reboot_found = True
+            break
+    if custom_reboot_found:
+        for s in steps:
+            s['custom_reboot'] = True
 
     return _sorted_steps(steps, _deploy_step_key)
 

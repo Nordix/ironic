@@ -1182,8 +1182,9 @@ class AgentOobStepsMixin(object):
         """
         can_power_on = (states.POWER_ON in
                         task.driver.power.get_supported_power_states(task))
+        reboot_step = task.custom_reboot
         try:
-            if can_power_on:
+            if can_power_on and not reboot_step:
                 manager_utils.node_power_action(task, states.POWER_ON)
             else:
                 LOG.debug('Not trying to power on node %s that does not '
@@ -1242,6 +1243,14 @@ class AgentDeployMixin(HeartbeatMixin, AgentOobStepsMixin):
             'agent_cached_deploy_steps')
         oob_steps = self.deploy_steps
 
+        # Check if the deployment step requires custom reboot
+        if step.get('custom_reboot'):
+            task.custom_reboot = True
+        else:
+            LOG.debug('Task %(id)s for %(step)s on %(node)s custom reboot NO',
+                      {'id': id(task), 'step': step.get('step'),
+                       'node': task.node_id})
+
         if conductor_steps.find_step(oob_steps, step):
             return super(AgentDeployMixin, self).execute_deploy_step(
                 task, step)
@@ -1286,8 +1295,12 @@ class AgentDeployMixin(HeartbeatMixin, AgentOobStepsMixin):
                         task.driver.power.get_supported_power_states(task))
 
         client = agent_client.get_client(task)
+        custom_reboot = task.custom_reboot
         try:
-            if not can_power_on:
+            if custom_reboot:
+                LOG.info('Initiating custom reboot process on node %(node)s',
+                         {'node': node.uuid})
+            elif not can_power_on:
                 LOG.info('Power interface of node %(node)s does not support '
                          'power on, using reboot to switch to the instance',
                          node.uuid)
