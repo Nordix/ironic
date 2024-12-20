@@ -800,8 +800,7 @@ class CleanupImageCacheTestCase(base.TestCase):
 
 class TestFetchCleanup(base.TestCase):
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
@@ -833,8 +832,7 @@ class TestFetchCleanup(base.TestCase):
         image_check.safety_check.assert_called_once()
         self.assertEqual(1, image_check.__str__.call_count)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
@@ -866,8 +864,7 @@ class TestFetchCleanup(base.TestCase):
         image_check.safety_check.assert_called_once()
         self.assertEqual(1, image_check.__str__.call_count)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
@@ -899,8 +896,7 @@ class TestFetchCleanup(base.TestCase):
         image_check.safety_check.assert_not_called()
         self.assertEqual(1, image_check.__str__.call_count)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
@@ -932,8 +928,7 @@ class TestFetchCleanup(base.TestCase):
         mock_format_inspector.assert_called_once_with('/foo/bar.part')
         image_check.safety_check.assert_not_called()
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(os.path, 'exists', autospec=True)
@@ -970,8 +965,7 @@ class TestFetchCleanup(base.TestCase):
         self.assertEqual(1, image_check.__str__.call_count)
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
     @mock.patch.object(images, 'fetch', autospec=True)
@@ -1003,8 +997,7 @@ class TestFetchCleanup(base.TestCase):
         mock_rename.assert_called_once_with('/foo/bar.part', '/foo/bar')
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
     @mock.patch.object(images, 'fetch', autospec=True)
@@ -1035,8 +1028,7 @@ class TestFetchCleanup(base.TestCase):
         self.assertEqual(1, image_check.__str__.call_count)
         mock_rename.assert_called_once_with('/foo/bar.part', '/foo/bar')
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
     @mock.patch.object(images, 'fetch', autospec=True)
@@ -1069,8 +1061,7 @@ class TestFetchCleanup(base.TestCase):
         image_check.safety_check.assert_called_once()
         self.assertEqual(1, image_check.__str__.call_count)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
     @mock.patch.object(images, 'fetch', autospec=True)
@@ -1098,10 +1089,9 @@ class TestFetchCleanup(base.TestCase):
         mock_show.assert_called_once_with('fake', 'fake-uuid')
         mock_format_inspector.assert_called_once_with('/foo/bar.part')
         image_check.safety_check.assert_called_once()
-        self.assertEqual(0, image_check.__str__.call_count)
+        self.assertEqual(1, image_check.__str__.call_count)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
     @mock.patch.object(images, 'fetch', autospec=True)
@@ -1138,8 +1128,7 @@ class TestFetchCleanup(base.TestCase):
         self.assertEqual(1, image_check.__str__.call_count)
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)
@@ -1170,8 +1159,7 @@ class TestFetchCleanup(base.TestCase):
         mock_rename.assert_called_once_with('/foo/bar.part', '/foo/bar')
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     @mock.patch.object(images, 'image_show', autospec=True)
     @mock.patch.object(os, 'remove', autospec=True)
     @mock.patch.object(images, 'converted_size', autospec=True)

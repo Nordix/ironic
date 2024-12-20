@@ -168,8 +168,7 @@ class IronicImagesTestCase(base.TestCase):
         image_to_raw_mock.assert_called_once_with(
             'image_href', 'path', 'path.part')
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_not_permitted_format(self, detect_format_mock):
         info = mock.MagicMock()
         # In the case the image looks okay, but it is not in our permitted
@@ -183,8 +182,7 @@ class IronicImagesTestCase(base.TestCase):
         detect_format_mock.assert_called_once_with('path_tmp')
         self.assertIn("The requested image is not valid for use.", str(e))
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_fails_safety_check(self, detect_format_mock):
         info = mock.MagicMock()
         info.__str__.return_value = 'qcow2'
@@ -203,8 +201,7 @@ class IronicImagesTestCase(base.TestCase):
     @mock.patch.object(os, 'rename', autospec=True)
     @mock.patch.object(os, 'unlink', autospec=True)
     @mock.patch.object(qemu_img, 'convert_image', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw(self, detect_format_mock, convert_image_mock,
                           unlink_mock, rename_mock):
         CONF.set_override('force_raw_images', True)
@@ -232,8 +229,7 @@ class IronicImagesTestCase(base.TestCase):
     @mock.patch.object(os, 'rename', autospec=True)
     @mock.patch.object(os, 'unlink', autospec=True)
     @mock.patch.object(qemu_img, 'convert_image', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_gpt(self, detect_format_mock, convert_image_mock,
                           unlink_mock, rename_mock):
         CONF.set_override('force_raw_images', True)
@@ -261,8 +257,7 @@ class IronicImagesTestCase(base.TestCase):
     @mock.patch.object(os, 'rename', autospec=True)
     @mock.patch.object(os, 'unlink', autospec=True)
     @mock.patch.object(qemu_img, 'convert_image', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_gpt_backward_compatibility(self, detect_format_mock,
                                                  convert_image_mock,
                                                  unlink_mock, rename_mock):
@@ -293,8 +288,7 @@ class IronicImagesTestCase(base.TestCase):
     @mock.patch.object(os, 'rename', autospec=True)
     @mock.patch.object(os, 'unlink', autospec=True)
     @mock.patch.object(qemu_img, 'convert_image', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_safety_check_disabled(
             self, detect_format_mock, convert_image_mock,
             unlink_mock, rename_mock):
@@ -324,8 +318,7 @@ class IronicImagesTestCase(base.TestCase):
     @mock.patch.object(os, 'rename', autospec=True)
     @mock.patch.object(os, 'unlink', autospec=True)
     @mock.patch.object(qemu_img, 'convert_image', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_safety_check_disabled_fails_to_convert(
             self, detect_format_mock, convert_image_mock,
             unlink_mock, rename_mock):
@@ -352,8 +345,7 @@ class IronicImagesTestCase(base.TestCase):
 
     @mock.patch.object(os, 'unlink', autospec=True)
     @mock.patch.object(qemu_img, 'convert_image', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_not_raw_after_conversion(self, detect_format_mock,
                                                    convert_image_mock,
                                                    unlink_mock):
@@ -375,8 +367,7 @@ class IronicImagesTestCase(base.TestCase):
             mock.call('path.converted')])
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_already_raw_format(self, detect_format_mock,
                                              rename_mock):
         info = mock.MagicMock()
@@ -391,8 +382,7 @@ class IronicImagesTestCase(base.TestCase):
         detect_format_mock.assert_called_once_with('path_tmp')
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_already_gpt_format(self, detect_format_mock,
                                              rename_mock):
         info = mock.MagicMock()
@@ -407,8 +397,7 @@ class IronicImagesTestCase(base.TestCase):
         detect_format_mock.assert_called_once_with('path_tmp')
 
     @mock.patch.object(os, 'rename', autospec=True)
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_image_to_raw_already_iso(self, detect_format_mock,
                                       rename_mock):
         info = mock.MagicMock()
@@ -418,7 +407,8 @@ class IronicImagesTestCase(base.TestCase):
         images.image_to_raw('image_href', 'path', 'path_tmp')
 
         rename_mock.assert_called_once_with('path_tmp', 'path')
-        info.safety_check.assert_called_once()
+        # ISO is not safety checked in Ironic
+        info.safety_check.assert_not_called()
         self.assertEqual(1, info.__str__.call_count)
         detect_format_mock.assert_called_once_with('path_tmp')
 
@@ -443,8 +433,7 @@ class IronicImagesTestCase(base.TestCase):
         show_mock.assert_called_once_with('context', 'image_href',
                                           'image_service')
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_converted_size_estimate_default(self, image_info_mock):
         info = self.FakeImgInfo()
         info.actual_size = 2
@@ -454,8 +443,7 @@ class IronicImagesTestCase(base.TestCase):
         image_info_mock.assert_called_once_with('path')
         self.assertEqual(4, size)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_converted_size_estimate_custom(self, image_info_mock):
         CONF.set_override('raw_image_growth_factor', 3)
         info = self.FakeImgInfo()
@@ -466,8 +454,7 @@ class IronicImagesTestCase(base.TestCase):
         image_info_mock.assert_called_once_with('path')
         self.assertEqual(6, size)
 
-    @mock.patch.object(image_format_inspector, 'detect_file_format',
-                       autospec=True)
+    @mock.patch.object(images, '_detect_file_format', autospec=True)
     def test_converted_size_estimate_raw_smaller(self, image_info_mock):
         CONF.set_override('raw_image_growth_factor', 3)
         info = self.FakeImgInfo()
