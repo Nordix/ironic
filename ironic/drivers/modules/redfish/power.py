@@ -84,7 +84,7 @@ class RedfishPower(base.PowerInterface):
         """
         redfish_utils.parse_driver_info(task.node)
 
-    def get_power_state(self, task):
+    def get_power_state(self, task, system=None):
         """Get the current power state of the task's node.
 
         :param task: a TaskManager instance containing the node to act on.
@@ -94,8 +94,10 @@ class RedfishPower(base.PowerInterface):
         :raises: RedfishConnectionError when it fails to connect to Redfish
         :raises: RedfishError on an error from the Sushy library
         """
-        system = redfish_utils.get_system(task.node)
-        return GET_POWER_STATE_MAP.get(system.power_state)
+        current_system = system
+        if current_system is None:
+            current_system = redfish_utils.get_system(task.node)
+        return GET_POWER_STATE_MAP.get(current_system.power_state)
 
     @task_manager.require_exclusive_lock
     def set_power_state(self, task, power_state, timeout=None):

@@ -1042,10 +1042,11 @@ class IPMIPower(base.PowerInterface):
         #             1314954 and 1314961 are resolved.
 
     @METRICS.timer('IPMIPower.get_power_state')
-    def get_power_state(self, task):
+    def get_power_state(self, task, system=None):
         """Get the current power state of the task's node.
 
         :param task: a TaskManager instance containing the node to act on.
+        :param system: not used, makes it compatible with api call reduction
         :returns: one of ironic.common.states POWER_OFF, POWER_ON or ERROR.
         :raises: InvalidParameterValue if required ipmi parameters are missing.
         :raises: MissingParameterValue if a required parameter is missing.
@@ -1136,6 +1137,48 @@ class IPMIManagement(base.ManagementInterface):
 
     def __init__(self):
         _constructor_checks(driver=self.__class__.__name__)
+
+    def get_system(self, task):
+        """Provides compatibility with the management interface
+
+        Provides compatibility with the management interface
+
+        :param task: A task from TaskManager
+        :raises: RedfishConnectionError when it fails to connect to Redfish
+        :raises: RedfishError if the System is not registered in Redfish
+        :returns: None
+        """
+        return None
+
+    def get_boot_mode(self, task, system=None):
+        """Provides compatibility with the management interface
+
+        Provides compatibility with the management interface. Implements
+        a wrapper that discards the system data and calls the same function
+        that would be called otherwise.
+
+        :param task: A task from TaskManager
+        :param system: Unused field that will be discarded
+        :raises: RedfishConnectionError when it fails to connect to Redfish
+        :raises: RedfishError if the System is not registered in Redfish
+        :returns: None
+        """
+        return super().get_boot_mode(task)
+
+    def get_secure_boot_state(self, task, system=None):
+        """Provides compatibility with the management interface
+
+        Provides compatibility with the management interface. Implements
+        a wrapper that discards the system data and calls the same function
+        that would be called otherwise.
+
+        :param task: A task from TaskManager
+        :param system: Unused field that will be discarded
+        :raises: RedfishConnectionError when it fails to connect to Redfish
+        :raises: RedfishError if the System is not registered in Redfish
+        :returns: None
+        """
+        return super().get_secure_boot_state(task)
 
     @METRICS.timer('IPMIManagement.validate')
     def validate(self, task):
@@ -1340,10 +1383,11 @@ class IPMIManagement(base.ManagementInterface):
         return response
 
     @METRICS.timer('IPMIManagement.detect_vendor')
-    def detect_vendor(self, task):
+    def detect_vendor(self, task, system=None):
         """Detects and returns the hardware vendor.
 
         :param task: A task from TaskManager.
+        :param system: not used, used for interface compatibility
         :raises: InvalidParameterValue if an invalid component, indicator
             or state is specified.
         :raises: MissingParameterValue if a required parameter is missing
