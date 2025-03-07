@@ -1493,7 +1493,7 @@ def node_cache_bios_settings(task):
         LOG.exception(msg)
 
 
-def node_cache_vendor(task):
+def node_cache_vendor(task, system=None):
     """Cache the vendor if it can be detected."""
     properties = task.node.properties
     if properties.get('vendor'):
@@ -1502,7 +1502,7 @@ def node_cache_vendor(task):
     try:
         # We have no vendor stored, so we'll go ahead and
         # call to store it.
-        vendor = task.driver.management.detect_vendor(task)
+        vendor = task.driver.management.detect_vendor(task, system)
         if not vendor:
             return
 
@@ -1527,7 +1527,7 @@ def node_cache_vendor(task):
              {'vendor': vendor, 'node': task.node.uuid})
 
 
-def node_cache_boot_mode(task):
+def node_cache_boot_mode(task, system=None):
     """Cache boot_mode and secure_boot state if supported by driver.
 
     Cache current boot_mode and secure_boot in ironic's node representation
@@ -1536,7 +1536,7 @@ def node_cache_boot_mode(task):
     """
     # Try to retrieve boot mode and secure_boot state
     try:
-        boot_mode = task.driver.management.get_boot_mode(task)
+        boot_mode = task.driver.management.get_boot_mode(task, system)
     except exception.UnsupportedDriverExtension:
         boot_mode = None
     except Exception as exc:
@@ -1547,7 +1547,8 @@ def node_cache_boot_mode(task):
                     exc_info=not isinstance(exc, exception.IronicException))
         return
     try:
-        secure_boot = task.driver.management.get_secure_boot_state(task)
+        secure_boot = task.driver.management.get_secure_boot_state(task,
+                                                                   system)
     except exception.UnsupportedDriverExtension:
         secure_boot = None
     except Exception as exc:

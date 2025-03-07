@@ -4056,6 +4056,7 @@ def do_sync_power_state(task, count):
     node = task.node
     old_power_state = node.power_state
     power_state = None
+    system = None
     count += 1
 
     max_retries = CONF.conductor.power_state_sync_max_retries
@@ -4070,7 +4071,9 @@ def do_sync_power_state(task, count):
     try:
         # The driver may raise an exception, or may return ERROR.
         # Handle both the same way.
-        power_state = task.driver.power.get_power_state(task)
+        LOG.debug("NORDIX_DBG: POWER SYNC, SYSTEM REQUESTED")
+        system = task.driver.management.get_system(task)
+        power_state = task.driver.power.get_power_state(task, system)
         if power_state == states.ERROR:
             raise exception.PowerStateFailure(
                 _("Power driver returned ERROR state "
@@ -4091,9 +4094,13 @@ def do_sync_power_state(task, count):
 
     # Make sure we have the vendor cached (if for some reason it failed during
     # the transition to manageable or a really old API version was used).
-    utils.node_cache_vendor(task)
+    LOG.debug("NORDIX_DBG: POWER SYNC, VENDOR CACHING START")
+    utils.node_cache_vendor(task, system)
+    LOG.debug("NORDIX_DBG: POWER SYNC, VENDOR CACHING END")
     # Also make sure to cache the current boot_mode and secure_boot states
-    utils.node_cache_boot_mode(task)
+    LOG.debug("NORDIX_DBG: POWER SYNC, BOOT CACHING START")
+    utils.node_cache_boot_mode(task, system)
+    LOG.debug("NORDIX_DBG: POWER SYNC, BOOT CACHING END")
 
     if ((node.power_state and node.power_state == power_state)
             or (node.power_state is None and power_state is None)):
