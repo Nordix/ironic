@@ -553,7 +553,7 @@ class RedfishManagement(base.ManagementInterface):
 
         manager_utils.node_power_action(task, old_power_state)
 
-    def get_boot_mode(self, task):
+    def get_boot_mode(self, task, system=None):
         """Get the current boot mode for a node.
 
         Provides the current boot mode of the node.
@@ -565,9 +565,11 @@ class RedfishManagement(base.ManagementInterface):
         :returns: The boot mode, one of :mod:`ironic.common.boot_mode` or
                   None if it is unknown.
         """
-        system = redfish_utils.get_system(task.node)
+        current_system = system
+        if current_system is None:
+            current_system = redfish_utils.get_system(task.node)
 
-        return BOOT_MODE_MAP.get(system.boot.get('mode'))
+        return BOOT_MODE_MAP.get(current_system.boot.get('mode'))
 
     @staticmethod
     def _sensor2dict(resource, *fields):
@@ -690,6 +692,18 @@ class RedfishManagement(base.ManagementInterface):
                 node=getattr(task.node, 'uuid', 'unknown'),
                 reason="BMC clock verify step failed: %s" % str(e)
             )
+
+    def get_system(self, task):
+        """Get the redfish system endpoint for a node.
+
+        Provides the current redfisy system endpoint data of the node.
+
+        :param task: A task from TaskManager
+        :raises: RedfishConnectionError when it fails to connect to Redfish
+        :raises: RedfishError if the System is not registered in Redfish
+        :returns: The system endpoint, or None if it is unknown.
+        """
+        return redfish_utils.get_system(task.node)
 
     @classmethod
     def _get_sensors_fan(cls, chassis):
@@ -1249,7 +1263,7 @@ class RedfishManagement(base.ManagementInterface):
                                 'component': component,
                                 'uuid': task.node.uuid})
 
-    def detect_vendor(self, task):
+    def detect_vendor(self, task, system=None):
         """Detects and returns the hardware vendor.
 
         Uses the Service Root's Vendor field to identify the BMC firmware
@@ -1267,7 +1281,12 @@ class RedfishManagement(base.ManagementInterface):
         vendor = redfish_utils.get_root_vendor(task.node)
         if vendor:
             return vendor
-        return redfish_utils.get_system(task.node).manufacturer
+        manufacturer = None
+        if system is None:
+            manufacturer = redfish_utils.get_system(task.node).manufacturer
+        else:
+            manufacturer = system.manufacturer
+        return manufacturer
 
     @METRICS.timer('RedfishManagement.update_firmware')
     @base.clean_step(priority=0, abortable=False,
@@ -1607,7 +1626,7 @@ class RedfishManagement(base.ManagementInterface):
             firmware_utils.cleanup(node)
             raise error
 
-    def get_secure_boot_state(self, task):
+    def get_secure_boot_state(self, task, system=None):
         """Get the current secure boot state for the node.
 
         :param task: A task from TaskManager.
