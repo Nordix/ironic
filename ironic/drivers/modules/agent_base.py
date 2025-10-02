@@ -1202,9 +1202,6 @@ class AgentOobStepsMixin(object):
             if task.custom_reboot:
                 LOG.info('Initiating custom reboot process on node %(node)s',
                          {'node': node.uuid})
-            elif task.node.disable_power_off:
-                # We haven't powered off the node yet - reset it now.
-                manager_utils.node_power_action(task, states.REBOOT)
             elif can_power_on:
                 manager_utils.node_power_action(task, states.POWER_ON)
             else:
