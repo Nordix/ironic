@@ -339,6 +339,13 @@ def do_next_deploy_step(task, step_index):
 
         child_node_execution = step.get('execute_on_child_nodes', False)
         result = None
+        task.custom_reboot = step.get('custom_reboot')
+        LOG.debug('NORDIX: task executing %(step)s has custom_reboot set '
+                  'to %(reboot)s on node %(node)s.', {
+                      'node': node.uuid,
+                      'step': node.deploy_step,
+                      'reboot': task.custom_reboot,
+                  })
         try:
             if async_steps.DEPLOYMENT_POLLING in node.driver_internal_info:
                 # We're going to execute a new step, we should delete any

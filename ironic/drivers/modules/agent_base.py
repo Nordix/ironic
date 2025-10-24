@@ -396,7 +396,7 @@ def execute_step(task, step, step_type, client=None):
     else:
         LOG.debug('Task %(id)s for %(step)s on %(node)s custom reboot NO',
                   {'id': id(task), 'step': step.get('step'),
-                  'node': task.node_id})
+                   'node': task.node_id})
     call = getattr(client, 'execute_%s_step' % step_type)
     result = call(step, task.node, ports)
     if not result.get('command_status'):
@@ -764,7 +764,9 @@ class AgentBaseMixin(object):
         :raises: other exceptions by the node's power driver if something
              wrong occurred during the power action.
         """
-        if not task.node.disable_power_off:
+        if not task.node.disable_power_off and not task.custom_reboot:
+            LOG.debug('NORDIX: Powering off node: %(node)s !',
+                      {'node': task.node, })
             manager_utils.node_power_action(task, states.POWER_OFF)
         task.driver.storage.detach_volumes(task)
         deploy_utils.tear_down_storage_configuration(task)
@@ -1201,7 +1203,7 @@ class AgentOobStepsMixin(object):
         try:
             if task.custom_reboot:
                 LOG.info('Initiating custom reboot process on node %(node)s',
-                         {'node': node.uuid})
+                         {'node': task.node.uuid})
             elif task.node.disable_power_off:
                 # We haven't powered off the node yet - reset it now.
                 manager_utils.node_power_action(task, states.REBOOT)
