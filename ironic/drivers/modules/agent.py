@@ -424,6 +424,9 @@ class CustomAgentDeploy(agent_base.AgentBaseMixin,
                 LOG.info("Node %s does not support power off, locking "
                          "down the agent", node.uuid)
                 client.lockdown(node)
+            elif task.custom_reboot:
+                LOG.info("NORDIX: Node %s requested custom reboot, skipping "
+                         "power action", node.uuid)
             elif not can_power_on:
                 LOG.info('Power interface of node %s does not support '
                          'power on, using reboot to switch to the instance',
