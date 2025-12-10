@@ -14,6 +14,17 @@
 # limitations under the License.
 
 import setuptools
+import configparser
+import json
+
+metadata = {
+    "commit": "85e3940b95ef145540fa89fbd322b911def1b02d",
+    "branch": "esj-protected/stable-2025.2/32.0-nordix-4"
+}
+
+# Write metadata to a file
+with open('/opt/ironic_build_metadata.json', 'w') as f:
+    json.dump(metadata, f, indent=2)
 
 setuptools.setup(
     setup_requires=['pbr>=6.0.0'],
