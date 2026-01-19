@@ -18,8 +18,8 @@ import configparser
 import json
 
 metadata = {
-    "commit": "85e3940b95ef145540fa89fbd322b911def1b02d",
-    "branch": "esj-protected/stable-2025.2/32.0-nordix-4"
+    "commit": "7e29dcf9c1b8a4a96a8e1e6ce21c19f80533cef6",
+    "branch": "esj-protected/stable-2025.2/32.0-nordix-5"
 }
 
 # Write metadata to a file
