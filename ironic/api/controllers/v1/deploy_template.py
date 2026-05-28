@@ -41,12 +41,14 @@ DEFAULT_RETURN_FIELDS = ['uuid', 'name']
 TEMPLATE_SCHEMA = {
     'type': 'object',
     'properties': {
-        'description': {'type': ['string', 'null'], 'maxLength': 255},
-        'extra': {'type': ['object', 'null']},
+        'description': {'type': ['string', 'null'],
+                        'maxLength': api_utils.SCHEMA_MAX_DESCRIPTION_LENGTH},
+        'extra': {'type': ['object', 'null'],
+                  'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
         'name': api_utils.TRAITS_SCHEMA,
         'steps': {'type': 'array', 'items': api_utils.DEPLOY_STEP_SCHEMA,
-                  'minItems': 1},
-        'uuid': {'type': ['string', 'null']},
+                  'minItems': 1, 'maxItems': api_utils.SCHEMA_MAX_STEPS},
+        'uuid': {'type': ['string', 'null'], 'format': 'uuid'},
     },
     'required': ['steps', 'name'],
     'additionalProperties': False,

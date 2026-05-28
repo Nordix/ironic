@@ -1,0 +1,6 @@
+---
+security:
+  - |
+    Adds more JSON schema validation to harden the API against Denial of
+    Service attacks.
+    `bug 2155050 <https://bugs.launchpad.net/ironic/+bug/2155050>`

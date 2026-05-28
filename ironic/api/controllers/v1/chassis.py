@@ -36,9 +36,11 @@ METRICS = metrics_utils.get_metrics_logger(__name__)
 CHASSIS_SCHEMA = {
     'type': 'object',
     'properties': {
-        'uuid': {'type': ['string', 'null']},
-        'extra': {'type': ['object', 'null']},
-        'description': {'type': ['string', 'null'], 'maxLength': 255},
+        'uuid': {'type': ['string', 'null'], 'format': 'uuid'},
+        'extra': {'type': ['object', 'null'],
+                  'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
+        'description': {'type': ['string', 'null'],
+                        'maxLength': api_utils.SCHEMA_MAX_DESCRIPTION_LENGTH},
     },
     'additionalProperties': False,
 }

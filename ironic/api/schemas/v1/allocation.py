@@ -12,6 +12,7 @@
 
 import copy
 
+from ironic.api.controllers.v1 import utils as api_utils
 from ironic.api.schemas.common import request_types
 from ironic.api.schemas.common import response_types
 
@@ -123,21 +124,27 @@ create_request_body = {
         'candidate_nodes': {
             'type': ['array', 'null'],
             'items': request_types.uuid_or_name,
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
         },
-        'extra': {'type': ['object', 'null']},
+        'extra': {'type': ['object', 'null'],
+                  'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
         # TODO(stephenfin): We'd like to use request_types.uuid_or_name here
         # but doing so will change the error response
-        'name': {'type': ['string', 'null']},
+        'name': {'type': ['string', 'null'],
+                 'maxLength': api_utils.SCHEMA_MAX_NAME_LENGTH},
         # TODO(stephenfin): The docs say that owner is only present in v1.60+,
         # but I can't see anything in the code to prevent this in the POST
         # request, only in the GET request and all responses
-        'owner': {'type': ['string', 'null']},
-        'resource_class': {'type': ['string', 'null'], 'maxLength': 80},
+        'owner': {'type': ['string', 'null'],
+                  'maxLength': api_utils.SCHEMA_MAX_OWNER_LENGTH},
+        'resource_class': {'type': ['string', 'null'],
+                           'maxLength': api_utils.SCHEMA_MAX_RES_CLASS_LENGTH},
         'traits': {
             'type': ['array', 'null'],
             'items': response_types.traits,
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
         },
-        'uuid': {'type': ['string', 'null']},
+        'uuid': request_types.uuid_or_null,
     },
     # TODO(stephenfin): The resource_class field is required when node is not
     # provided. We'd like to express this here, but doing so will change the
@@ -160,14 +167,18 @@ update_request_body = {
         'type': 'object',
         'properties': {
             'op': {'enum': ['add', 'replace', 'remove']},
-            'path': {'type': 'string'},
+            'path': {'type': 'string',
+                     'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
             'value': {
-                'type': ['string', 'object', 'null', 'integer', 'boolean']
+                'type': ['string', 'object', 'null', 'integer', 'boolean'],
+                'maxLength': api_utils.SCHEMA_MAX_PATCH_LENGTH,
+                'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
             },
         },
         'required': ['op', 'path'],
         'additionalProperties': False,
     },
+    'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
 }
 
 # TODO(stephenfin): The code suggests that we should be allowing 'owner' here,

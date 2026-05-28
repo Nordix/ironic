@@ -326,20 +326,27 @@ DATA_VALIDATOR = args.schema({
                     'items': {
                         'type': 'object',
                         'properties': {
-                            'mac_address': {'type': 'string'},
+                            'mac_address': {
+                                'type': 'string',
+                                'format': "mac-address"
+                            },
                         },
                         'required': ['mac_address'],
                         'additionalProperties': True,
+                        'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
                     },
                     'minItems': 1,
+                    'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
                 },
             },
             'required': ['interfaces'],
             'additionalProperties': True,
+            'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
         },
     },
     'required': ['inventory'],
     'additionalProperties': True,
+    'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
 })
 
 

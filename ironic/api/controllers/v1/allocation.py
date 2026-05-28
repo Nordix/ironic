@@ -42,18 +42,26 @@ ALLOCATION_SCHEMA = {
     'properties': {
         'candidate_nodes': {
             'type': ['array', 'null'],
-            'items': {'type': 'string'}
+            'items': {'type': 'string',
+                      'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
         },
-        'extra': {'type': ['object', 'null']},
-        'name': {'type': ['string', 'null']},
-        'node': {'type': ['string', 'null']},
-        'owner': {'type': ['string', 'null']},
-        'resource_class': {'type': ['string', 'null'], 'maxLength': 80},
+        'extra': {'type': ['object', 'null'],
+                  'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
+        'name': {'type': ['string', 'null'],
+                 'maxLength': api_utils.SCHEMA_MAX_NAME_LENGTH},
+        'node': {'type': ['string', 'null'],
+                 'maxLength': api_utils.SCHEMA_MAX_NAME_LENGTH},
+        'owner': {'type': ['string', 'null'],
+                  'maxLength': api_utils.SCHEMA_MAX_OWNER_LENGTH},
+        'resource_class': {'type': ['string', 'null'],
+                           'maxLength': api_utils.SCHEMA_MAX_RES_CLASS_LENGTH},
         'traits': {
             'type': ['array', 'null'],
-            'items': api_utils.TRAITS_SCHEMA
+            'items': api_utils.TRAITS_SCHEMA,
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
         },
-        'uuid': {'type': ['string', 'null']},
+        'uuid': {'type': ['string', 'null'], 'format': 'uuid'},
     },
     'additionalProperties': False,
 }
