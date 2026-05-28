@@ -146,10 +146,25 @@ LOCAL_LINK_CONN_SCHEMA = {'anyOf': [
     {'type': 'object', 'additionalProperties': False},
 ]}
 
+SCHEMA_MAX_PROPERTIES = 256
+SCHEMA_MAX_STRING_LENGTH = 128
+SCHEMA_MAX_ADDRESS_LENGTH = 128
+SCHEMA_MAX_NAME_LENGTH = 255
+SCHEMA_MAX_DESCRIPTION_LENGTH = 255
+SCHEMA_MAX_VENDOR_LENGTH = 32
+SCHEMA_MAX_CATEGORY_LENGTH = 80
+SCHEMA_MAX_PHYS_NETWORK_LENGTH = 64
+SCHEMA_MAX_RES_CLASS_LENGTH = 80
+SCHEMA_MAX_OWNER_LENGTH = 255
+SCHEMA_MAX_STEPS = 256
+SCHEMA_MAX_ID_LENGTH = 253
+SCHEMA_MAX_PATCH_LENGTH = 512
+
 DEPLOY_STEP_SCHEMA = {
     'type': 'object',
     'properties': {
-        'args': {'type': 'object'},
+        'args': {'type': 'object',
+                 'maxProperties': SCHEMA_MAX_PROPERTIES},
         'interface': {
             'type': 'string',
             'enum': list(conductor_steps.DEPLOYING_INTERFACE_PRIORITY)
@@ -158,7 +173,8 @@ DEPLOY_STEP_SCHEMA = {
             {'type': 'integer', 'minimum': 0},
             {'type': 'string', 'minLength': 1, 'pattern': '^[0-9]+$'}
         ]},
-        'step': {'type': 'string', 'minLength': 1},
+        'step': {'type': 'string', 'minLength': 1,
+                 'maxLength': SCHEMA_MAX_STRING_LENGTH},
     },
     'required': ['interface', 'step', 'args', 'priority'],
     'additionalProperties': False,
@@ -167,12 +183,14 @@ DEPLOY_STEP_SCHEMA = {
 RUNBOOK_STEP_SCHEMA = {
     'type': 'object',
     'properties': {
-        'args': {'type': 'object'},
+        'args': {'type': 'object',
+                 'maxProperties': SCHEMA_MAX_PROPERTIES},
         'interface': {
             'type': 'string',
             'enum': list(conductor_steps.CLEANING_INTERFACE_PRIORITY)
         },
-        'step': {'type': 'string', 'minLength': 1},
+        'step': {'type': 'string', 'minLength': 1,
+                 'maxLength': SCHEMA_MAX_STRING_LENGTH},
         'order': {'anyOf': [
             {'type': 'integer', 'minimum': 0},
             {'type': 'string', 'minLength': 1, 'pattern': '^[0-9]+$'}

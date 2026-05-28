@@ -53,16 +53,19 @@ RUNBOOK_NAME_SCHEMA = {
 RUNBOOK_SCHEMA = {
     'type': 'object',
     'properties': {
-        'uuid': {'type': ['string', 'null']},
+        'uuid': {'type': ['string', 'null'], 'format': 'uuid'},
         'name': api_utils.TRAITS_SCHEMA,
         'steps': {
             'type': 'array',
             'items': api_utils.RUNBOOK_STEP_SCHEMA,
-            'minItems': 1},
+            'minItems': 1,
+            'maxItems': api_utils.SCHEMA_MAX_STEPS},
         'disable_ramdisk': {'type': ['boolean', 'null']},
-        'extra': {'type': ['object', 'null']},
+        'extra': {'type': ['object', 'null'],
+                  'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
         'public': {'type': ['boolean', 'null']},
-        'owner': {'type': ['string', 'null'], 'maxLength': 255}
+        'owner': {'type': ['string', 'null'],
+                  'maxLength': api_utils.SCHEMA_MAX_OWNER_LENGTH}
     },
     'required': ['steps', 'name'],
     'additionalProperties': False,

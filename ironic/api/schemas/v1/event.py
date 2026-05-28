@@ -12,6 +12,8 @@
 
 # request body schemas
 
+from ironic.api.controllers.v1 import utils as api_utils
+
 _event_types = [
     'network.bind_port', 'network.unbind_port', 'network.delete_port',
 ]
@@ -22,6 +24,7 @@ create_request_body = {
         'events': {
             'type': 'array',
             'minItems': 1,
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
             # NOTE(stephenfin): This will likely need to be much more
             # complicated (lots of oneOf) if/when we need to support other
             # types of event
@@ -31,7 +34,10 @@ create_request_body = {
                     'event': {'type': 'string', 'enum': _event_types},
                     'port_id': {'type': 'string', 'format': 'uuid'},
                     'mac_address': {'type': 'string', 'format': 'mac-address'},
-                    'status': {'type': 'string'},
+                    'status': {
+                        'type': 'string',
+                        'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+                    },
                     'device_id': {
                         'type': ['string', 'null'], 'format': 'uuid'
                     },

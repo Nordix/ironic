@@ -21,6 +21,8 @@ uuid = {'type': 'string', 'format': 'uuid'}
 
 uuid_or_name = {'anyOf': [uuid, name]}
 
+uuid_or_null = {'anyOf': [uuid, {'type': 'null'}]}
+
 detail = {
     'type': ['string', 'boolean'],
     'format': '(?i)^(1|t|true|on|y|yes|0|f|false|off|n|no)$',

@@ -12,6 +12,7 @@
 
 import copy
 
+from ironic.api.controllers.v1 import utils as api_utils
 from ironic.api.schemas.common import request_types
 from ironic.common.inspection_rules import actions
 from ironic.common.inspection_rules import operators
@@ -104,6 +105,7 @@ create_request_body = {
         'actions': {
             'type': 'array',
             'minItems': 1,
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
             'items': {
                 'type': 'object',
                 'required': ['op', 'args'],
@@ -114,19 +116,25 @@ create_request_body = {
                     },
                     'args': {
                         'description': 'Arguments for the action',
-                        'type': ['array', 'object']
+                        'type': ['array', 'object'],
+                        'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
+                        'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
                     },
                     'loop': {
                         'description': 'Loop behavior for actions',
-                        'type': ['array', 'object']
+                        'type': ['array', 'object'],
+                        'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
+                        'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
                     },
                 },
-                'additionalProperties': True
+                'additionalProperties': True,
+                'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
             },
         },
         'conditions': {
             'type': 'array',
             'minItems': 0,
+            'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
             'items': {
                 'type': 'object',
                 'required': ['op', 'args'],
@@ -140,6 +148,8 @@ create_request_body = {
                     'args': {
                         'description': 'Arguments for the condition',
                         'type': ['array', 'object'],
+                        'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
+                        'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
                     },
                     'multiple': {
                         'description': 'How to treat multiple values',
@@ -148,19 +158,23 @@ create_request_body = {
                     'loop': {
                         'description': 'Loop behavior for conditions',
                         'type': ['array', 'object'],
+                        'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
+                        'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
                     },
                 },
                 # other properties are validated by plugins
                 'additionalProperties': True,
+                'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES,
             },
         },
-        'description': {'type': ['string', 'null'], 'maxLength': 255},
+        'description': {'type': ['string', 'null'],
+                        'maxLength': api_utils.SCHEMA_MAX_DESCRIPTION_LENGTH},
         # TODO(stephenfin): We should move validation of this value here. It's
         # currently handled in validate_rule
         'phase': {'type': ['string', 'null'], 'maxLength': 16},
         'priority': {'type': 'integer', 'minimum': 0},
         'sensitive': {'type': ['boolean', 'null']},
-        'uuid': {'type': ['string', 'null']},
+        'uuid': request_types.uuid_or_null,
     },
     'required': ['actions'],
     'additionalProperties': False
@@ -175,10 +189,12 @@ update_request_body = {
         'type': 'object',
         'properties': {
             'op': {'enum': ['add', 'replace', 'remove']},
-            'path': {'type': 'string'},
+            'path': {'type': 'string',
+                     'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
             'value': {},
         },
         'required': ['op', 'path'],
         'additionalProperties': False,
     },
+    'maxItems': api_utils.SCHEMA_MAX_PROPERTIES,
 }

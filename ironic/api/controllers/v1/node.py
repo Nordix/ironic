@@ -81,12 +81,14 @@ _STEPS_SCHEMA = {
             "step": {
                 "description": "name of clean step",
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "maxLength": api_utils.SCHEMA_MAX_STRING_LENGTH
             },
             "args": {
                 "description": "additional args",
                 "type": "object",
-                "properties": {}
+                "properties": {},
+                "maxProperties": api_utils.SCHEMA_MAX_PROPERTIES,
             },
             'order': {'anyOf': [
                 {'type': 'integer', 'minimum': 0},
@@ -101,18 +103,21 @@ _STEPS_SCHEMA = {
                 "description": "List of nodes upon which to execute child "
                                "node steps on.",
                 "type": "array",
+                "maxItems": api_utils.SCHEMA_MAX_PROPERTIES,
             }
         },
         # interface, step and args are the only expected keys
-        "additionalProperties": False
-    }
+        "additionalProperties": False,
+    },
+    'maxItems': api_utils.SCHEMA_MAX_STEPS,
 }
 
 _DEPLOY_STEPS_SCHEMA = {
     "$schema": "http://json-schema.org/schema#",
     "title": "Deploy steps schema",
     "type": "array",
-    "items": api_utils.DEPLOY_STEP_SCHEMA
+    "items": api_utils.DEPLOY_STEP_SCHEMA,
+    'maxItems': api_utils.SCHEMA_MAX_STEPS,
 }
 
 METRICS = metrics_utils.get_metrics_logger(__name__)
@@ -169,50 +174,122 @@ def node_schema():
         'type': 'object',
         'properties': {
             'automated_clean': {'type': ['string', 'boolean', 'null']},
-            'bios_interface': {'type': ['string', 'null']},
-            'boot_interface': {'type': ['string', 'null']},
-            'boot_mode': {'type': ['string', 'null']},
-            'chassis_uuid': {'type': ['string', 'null']},
-            'conductor_group': {'type': ['string', 'null']},
-            'console_enabled': {'type': ['string', 'boolean', 'null']},
-            'console_interface': {'type': ['string', 'null']},
-            'deploy_interface': {'type': ['string', 'null']},
+            'bios_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'boot_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'boot_mode': {'type': ['string', 'null'],
+                          'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'chassis_uuid': {'type': ['string', 'null'], 'format': 'uuid'},
+            'conductor_group': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'console_enabled': {
+                'type': ['string', 'boolean', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'console_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'deploy_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
             'description': {'type': ['string', 'null'],
                             'maxLength': _NODE_DESCRIPTION_MAX_LENGTH},
-            'disable_power_off': {'type': ['string', 'boolean', 'null']},
-            'driver': {'type': 'string'},
-            'driver_info': {'type': ['object', 'null']},
-            'extra': {'type': ['object', 'null']},
-            'firmware_interface': {'type': ['string', 'null']},
-            'inspect_interface': {'type': ['string', 'null']},
-            'instance_info': {'type': ['object', 'null']},
-            'instance_name': {'type': ['string', 'null'], 'minLength': 1,
-                              'maxLength': 255},
-            'instance_uuid': {'type': ['string', 'null']},
-            'lessee': {'type': ['string', 'null']},
-            'management_interface': {'type': ['string', 'null']},
-            'maintenance': {'type': ['string', 'boolean', 'null']},
-            'name': {'type': ['string', 'null']},
+            'disable_power_off': {
+                'type': ['string', 'boolean', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'driver': {'type': 'string',
+                       'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'driver_info': {'type': ['object', 'null'],
+                            'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
+            'extra': {'type': ['object', 'null'],
+                      'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
+            'firmware_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'inspect_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'instance_info': {
+                'type': ['object', 'null'],
+                'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES
+            },
+            'instance_name': {
+                'type': ['string', 'null'], 'minLength': 1,
+                'maxLength': api_utils.SCHEMA_MAX_NAME_LENGTH
+            },
+            'instance_uuid': {'type': ['string', 'null'], 'format': 'uuid'},
+            'lessee': {'type': ['string', 'null'],
+                       'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'management_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'maintenance': {'type': ['string', 'boolean', 'null'],
+                            'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'name': {'type': ['string', 'null'],
+                     'maxLength': api_utils.SCHEMA_MAX_NAME_LENGTH},
             'network_data': {'anyOf': [
                 {'type': 'null'},
                 {'type': 'object', 'additionalProperties': False},
                 network_data
             ]},
-            'network_interface': {'type': ['string', 'null']},
-            'owner': {'type': ['string', 'null']},
-            'parent_node': {'type': ['string', 'null'], 'maxLength': 36},
-            'power_interface': {'type': ['string', 'null']},
-            'properties': {'type': ['object', 'null']},
-            'raid_interface': {'type': ['string', 'null']},
-            'rescue_interface': {'type': ['string', 'null']},
-            'resource_class': {'type': ['string', 'null'], 'maxLength': 80},
-            'retired': {'type': ['string', 'boolean', 'null']},
-            'retired_reason': {'type': ['string', 'null']},
-            'secure_boot': {'type': ['string', 'boolean', 'null']},
-            'shard': {'type': ['string', 'null']},
-            'storage_interface': {'type': ['string', 'null']},
-            'uuid': {'type': ['string', 'null']},
-            'vendor_interface': {'type': ['string', 'null']},
+            'network_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'owner': {'type': ['string', 'null'],
+                      'maxLength': api_utils.SCHEMA_MAX_OWNER_LENGTH},
+            'parent_node': {'type': ['string', 'null'], 'format': 'uuid'},
+            'power_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'properties': {'type': ['object', 'null'],
+                           'maxProperties': api_utils.SCHEMA_MAX_PROPERTIES},
+            'raid_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'rescue_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'resource_class': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_RES_CLASS_LENGTH
+            },
+            'retired': {'type': ['string', 'boolean', 'null'],
+                        'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'retired_reason': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'secure_boot': {'type': ['string', 'boolean', 'null'],
+                            'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'shard': {'type': ['string', 'null'],
+                      'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH},
+            'storage_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
+            'uuid': {'type': ['string', 'null'],
+                     'format': 'uuid'},
+            'vendor_interface': {
+                'type': ['string', 'null'],
+                'maxLength': api_utils.SCHEMA_MAX_STRING_LENGTH
+            },
         },
         'required': ['driver'],
         'additionalProperties': False,
