@@ -823,7 +823,9 @@ class AgentBaseMixin(object):
         # we cannot power off the node there, so making sure it no longer runs
         # the instance image by rebooting after boot.clean_up_instance.
         if task.node.disable_power_off:
-            manager_utils.node_power_action(task, states.REBOOT)
+            # manager_utils.node_power_action(task, states.REBOOT)
+            LOG.debug('NORDIX: Skipping power ops during cleanup go node %s ',
+                      task.node.uuid)
 
     def take_over(self, task):
         """Take over management of this node from a dead conductor.
