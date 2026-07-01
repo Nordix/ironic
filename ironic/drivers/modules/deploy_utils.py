@@ -791,7 +791,8 @@ def prepare_inband_cleaning(task, manage_boot=True):
     # need to check fast-track again and reboot if needed.
     fast_track = manager_utils.is_fast_track(task)
     if not fast_track:
-        manager_utils.node_power_action(task, states.REBOOT)
+        if not task.node.disable_reboot:
+            manager_utils.node_power_action(task, states.REBOOT)
         # Tell the conductor we are waiting for the agent to boot.
         return states.CLEANWAIT
 
@@ -830,7 +831,8 @@ def tear_down_inband_cleaning(task, manage_boot=True):
     task.driver.network.remove_cleaning_network(task)
     if not (fast_track or cleaning_failure):
         if node.disable_power_off:
-            manager_utils.node_power_action(task, states.REBOOT)
+            if not node.disable_reboot:
+                manager_utils.node_power_action(task, states.REBOOT)
         else:
             manager_utils.restore_power_state_if_needed(
                 task, power_state_to_restore)
@@ -901,9 +903,12 @@ def tear_down_inband_service(task):
         task.driver.boot.prepare_instance(task)
         # prepare_instance does not power on the node, the deploy interface is
         # normally responsible for that.
-        next_state = (states.REBOOT if task.node.disable_power_off
-                      else states.POWER_ON)
-        manager_utils.node_power_action(task, next_state)
+        if task.node.disable_power_off and task.node.disable_reboot:
+            pass
+        elif task.node.disable_power_off:
+            manager_utils.node_power_action(task, states.REBOOT)
+        else:
+            manager_utils.node_power_action(task, states.POWER_ON)
 
 
 def get_image_instance_info(node):
@@ -1893,7 +1898,8 @@ def reboot_to_finish_step(task):
             manager_utils.node_power_action(task, states.POWER_OFF)
         prepare_agent_boot(task)
 
-    manager_utils.node_power_action(task, states.REBOOT)
+    if not task.node.disable_reboot:
+        manager_utils.node_power_action(task, states.REBOOT)
     return async_steps.get_return_state(task.node)
 
 

@@ -605,10 +605,13 @@ def power_off_and_on(task):
 
     If disable_power_off is False, the node is powered off before yielding and
     powered back on afterwards. Otherwise, one reboot is issued in the end.
+    If disable_reboot is also set, no power action is taken.
     """
     if not task.node.disable_power_off:
         utils.node_power_action(task, states.POWER_OFF)
     yield
+    if task.node.disable_reboot:
+        return
     next_state = (states.REBOOT if task.node.disable_power_off
                   else states.POWER_ON)
     utils.node_power_action(task, next_state)

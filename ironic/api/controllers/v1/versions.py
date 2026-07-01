@@ -152,7 +152,8 @@ BASE_VERSION = 1
 #          dynamic_portgroup to portgroup
 # v1.112: Add runbook traits: traits set on runbooks (replaces name-as-trait
 #          matching), relaxed runbook name validation, description field, and
-#          /v1/runbooks/{ident}/traits sub-resource endpoints.
+#          /v1/runbooks/{ident}/traits sub-resource endpoints. Add node support
+#          for disable_reboot
 
 MINOR_0_JUNO = 0
 MINOR_1_INITIAL_VERSION = 1
@@ -276,6 +277,7 @@ MINOR_114_FIRMWARE_IDENTITY = 114
 # v1.115: Add state, target_provision_state, and
 # duration_seconds to node history.
 MINOR_115_NODE_HISTORY_FIELDS = 115
+MINOR_116_DISABLE_REBOOT = 116
 
 # When adding another version, update:
 # - MINOR_MAX_VERSION
@@ -285,7 +287,7 @@ MINOR_115_NODE_HISTORY_FIELDS = 115
 # - Add a comment describing the change above the list of consts
 
 
-MINOR_MAX_VERSION = MINOR_115_NODE_HISTORY_FIELDS
+MINOR_MAX_VERSION = MINOR_116_DISABLE_REBOOT
 
 # String representations of the minor and maximum versions
 _MIN_VERSION_STRING = '{}.{}'.format(BASE_VERSION, MINOR_1_INITIAL_VERSION)
