@@ -1122,6 +1122,8 @@ class IPMIPower(base.PowerInterface):
              if not task.node.disable_power_off:
                 _soft_power_off(task, driver_info, timeout=timeout)
         elif power_state == states.SOFT_REBOOT:
+            if task.node.disable_reboot:
+                return
             if task.node.disable_power_off:
                 # There is no way to implement this in ipmitool, apparently
                 raise exception.UnsupportedHardwareFeature(
@@ -1151,10 +1153,13 @@ class IPMIPower(base.PowerInterface):
           POWER_ON or the intermediate state of the node is not POWER_OFF.
 
         """
+        if task.node.disable_reboot:
+            # Reboot is disabled, no op
+            return
         driver_info = _parse_driver_info(task.node)
+        driver_utils.ensure_next_boot_device(task, driver_info)
         if task.node.disable_power_off:
-            driver_utils.ensure_next_boot_device(task, driver_info)
-            # _set_and_wait(task, states.REBOOT, driver_info, timeout=timeout)
+            _set_and_wait(task, states.REBOOT, driver_info, timeout=timeout)
             return
         # NOTE(jlvillal): Some BMCs will error if setting power state to off if
         # the node is already turned off.

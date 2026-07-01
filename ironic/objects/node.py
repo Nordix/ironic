@@ -187,6 +187,7 @@ class Node(base.IronicObject, object_base.VersionedObjectDictCompat):
         'shard': object_fields.StringField(nullable=True),
         'parent_node': object_fields.StringField(nullable=True),
         'disable_power_off': objects.fields.BooleanField(nullable=True),
+        'disable_reboot': objects.fields.BooleanField(nullable=True),
         'instance_name': object_fields.StringField(nullable=True),
         'health': object_fields.StringField(nullable=True),
     }
@@ -666,7 +667,8 @@ class Node(base.IronicObject, object_base.VersionedObjectDictCompat):
 
         boolean_fields = [('protected', 29, False),
                           ('retired', 33, False),
-                          ('disable_power_off', 41, False)]
+                          ('disable_power_off', 41, False),
+                          ('disable_reboot', 41, False)]
 
         for name, minor, default in boolean_fields:
             self._adjust_field_to_version(name, default, target_version,
@@ -771,6 +773,7 @@ class NodePayload(notification.NotificationPayloadBase):
         'deploy_step': ('node', 'deploy_step'),
         'description': ('node', 'description'),
         'disable_power_off': ('node', 'disable_power_off'),
+        'disable_reboot': ('node', 'disable_reboot'),
         'driver': ('node', 'driver'),
         'extra': ('node', 'extra'),
         'boot_mode': ('node', 'boot_mode'),
@@ -840,6 +843,7 @@ class NodePayload(notification.NotificationPayloadBase):
         'deploy_step': object_fields.FlexibleDictField(nullable=True),
         'description': object_fields.StringField(nullable=True),
         'disable_power_off': objects.fields.BooleanField(nullable=True),
+        'disable_reboot': objects.fields.BooleanField(nullable=True),
         'driver': object_fields.StringField(nullable=True),
         'extra': object_fields.FlexibleDictField(nullable=True),
         'boot_mode': object_fields.StringField(nullable=True),

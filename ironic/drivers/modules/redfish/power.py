@@ -189,7 +189,10 @@ class RedfishPower(base.PowerInterface):
 
         try:
             if current_power_state == states.POWER_ON:
-                if task.node.disable_power_off:
+                if task.node.disable_power_off and task.node.disable_reboot:
+                    # Both disabled, skip all power actions
+                    return
+                elif task.node.disable_power_off:
                     # Skip powering off, reboot after restoring the boot device
                     next_state = states.REBOOT
                 else:

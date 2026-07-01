@@ -180,6 +180,7 @@ def node_schema():
             'description': {'type': ['string', 'null'],
                             'maxLength': _NODE_DESCRIPTION_MAX_LENGTH},
             'disable_power_off': {'type': ['string', 'boolean', 'null']},
+            'disable_reboot': {'type': ['string', 'boolean', 'null']},
             'driver': {'type': 'string'},
             'driver_info': {'type': ['object', 'null']},
             'extra': {'type': ['object', 'null']},
@@ -235,6 +236,7 @@ NODE_VALIDATE_EXTRA = args.dict_valid(
     chassis_uuid=args.uuid,
     console_enabled=args.boolean,
     disable_power_off=args.boolean,
+    disable_reboot=args.boolean,
     instance_uuid=args.uuid,
     protected=args.boolean,
     maintenance=args.boolean,
@@ -277,6 +279,7 @@ PATCH_ALLOWED_FIELDS = [
     'deploy_interface',
     'description',
     'disable_power_off',
+    'disable_reboot',
     'driver',
     'driver_info',
     'extra',
@@ -894,6 +897,10 @@ class NodeStatesController(rest.RestController):
 
         elif (target in (ir_states.POWER_OFF, ir_states.SOFT_POWER_OFF)
               and rpc_node.disable_power_off):
+            raise exception.PowerStateFailure(pstate=target)
+
+        elif (target in (ir_states.REBOOT, ir_states.SOFT_REBOOT)
+              and rpc_node.disable_reboot):
             raise exception.PowerStateFailure(pstate=target)
 
         api.request.rpcapi.change_node_power_state(api.request.context,
@@ -1581,6 +1588,7 @@ def _get_fields_for_node_query(fields=None):
                     'console_enabled',
                     'console_interface',
                     'disable_power_off',
+                    'disable_reboot',
                     'deploy_interface',
                     'deploy_step',
                     'description',
@@ -3097,7 +3105,8 @@ class NodesController(rest.RestController):
             ('/retired', 'baremetal:node:update:retired'),
             ('/shard', 'baremetal:node:update:shard'),
             ('/parent_node', 'baremetal:node:update:parent_node'),
-            ('/disable_power_off', 'baremetal:node:update:disable_power_off')
+            ('/disable_power_off', 'baremetal:node:update:disable_power_off'),
+            ('/disable_reboot', 'baremetal:node:update:disable_reboot')
         )
         for p in patch:
             # Process general direct path to policy map

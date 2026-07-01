@@ -315,6 +315,11 @@ def node_power_action(task, new_state, timeout=None):
                   "flag set", node.uuid)
         raise exception.PowerStateFailure(pstate=new_state)
 
+    if new_state in (states.REBOOT, states.SOFT_REBOOT) and node.disable_reboot:
+        LOG.info("Skipping reboot of node %s with disable_reboot "
+                 "flag set", node.uuid)
+        return
+
     if _can_skip_state_change(task, new_state):
         # NOTE(TheJulia): Even if we are not changing the power state,
         # we need to wipe the token out, just in case for some reason
