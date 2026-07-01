@@ -29,3 +29,5 @@ down_revision = '66bd9c5604d5'
 def upgrade():
     op.add_column('nodes', sa.Column('disable_power_off', sa.Boolean(),
                                      nullable=True, server_default=sa.false()))
+    op.add_column('nodes', sa.Column('disable_reboot', sa.Boolean(),
+                                     nullable=True, server_default=sa.false()))

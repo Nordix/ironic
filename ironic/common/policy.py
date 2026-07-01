@@ -1063,6 +1063,16 @@ node_policies = [
         ],
     ),
     policy.DocumentedRuleDefault(
+        name='baremetal:node:update:disable_reboot',
+        check_str=SYSTEM_ADMIN,
+        scope_types=['system', 'project'],
+        description='Governs if reboot can be disabled via the API '
+                    'clients.',
+        operations=[
+            {'path': '/nodes/{node_ident}', 'method': 'PATCH'}
+        ],
+    ),
+    policy.DocumentedRuleDefault(
         name='baremetal:node:firmware:get',
         check_str=SYSTEM_OR_PROJECT_READER,
         scope_types=['system', 'project'],
