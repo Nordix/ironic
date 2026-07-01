@@ -883,6 +883,7 @@ VERSIONED_FIELDS = {
     'firmware_interface': versions.MINOR_86_FIRMWARE_INTERFACE,
     'service_step': versions.MINOR_87_SERVICE,
     'disable_power_off': versions.MINOR_95_DISABLE_POWER_OFF,
+    'disable_reboot': versions.MINOR_112_DISABLE_REBOOT,
     'instance_name': versions.MINOR_104_NODE_INSTANCE_NAME,
     'health': versions.MINOR_109_NODE_HEALTH,
 }

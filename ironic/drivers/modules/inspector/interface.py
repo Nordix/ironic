@@ -214,7 +214,9 @@ class Common(base.InspectInterface):
         return states.INSPECTWAIT
 
     def _power_on_or_reboot(self, task):
-        # Handles disable_power_off properly
+        # Handles disable_power_off and disable_reboot properly
+        if task.node.disable_power_off and task.node.disable_reboot:
+            return
         next_state = (states.REBOOT if task.node.disable_power_off
                       else states.POWER_ON)
         cond_utils.node_power_action(task, next_state)

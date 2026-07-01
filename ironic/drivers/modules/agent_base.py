@@ -822,9 +822,11 @@ class AgentBaseMixin(object):
         # NOTE(dtantsur): in a regular case, this is handled by tear_down, but
         # we cannot power off the node there, so making sure it no longer runs
         # the instance image by rebooting after boot.clean_up_instance.
-        if task.node.disable_power_off:
-            # manager_utils.node_power_action(task, states.REBOOT)
-            LOG.debug('NORDIX: Skipping power ops during cleanup go node %s ',
+        if task.node.disable_power_off and not task.node.disable_reboot:
+            manager_utils.node_power_action(task, states.REBOOT)
+        elif task.node.disable_power_off and task.node.disable_reboot:
+            LOG.debug('Skipping power ops during cleanup for node %s: '
+                      'disable_power_off and disable_reboot are set',
                       task.node.uuid)
 
     def take_over(self, task):
@@ -1224,6 +1226,10 @@ class AgentOobStepsMixin(object):
             if task.custom_reboot:
                 LOG.info('Initiating custom reboot process on node %(node)s',
                          {'node': task.node.uuid})
+            elif task.node.disable_power_off and task.node.disable_reboot:
+                LOG.debug('Skipping power action on node %s: '
+                          'disable_power_off and disable_reboot are set',
+                          task.node.uuid)
             elif task.node.disable_power_off:
                 # We haven't powered off the node yet - reset it now.
                 manager_utils.node_power_action(task, states.REBOOT)

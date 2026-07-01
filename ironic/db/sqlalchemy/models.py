@@ -220,6 +220,8 @@ class NodeBase(Base):
     service_step = Column(db_types.JsonEncodedDict)
     disable_power_off = Column(Boolean, nullable=True, default=False,
                                server_default=false())
+    disable_reboot = Column(Boolean, nullable=True, default=False,
+                            server_default=false())
     health = Column(String(32), nullable=True)
 
 
