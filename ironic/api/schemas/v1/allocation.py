@@ -57,18 +57,31 @@ index_request_query = {
             # https://swagger.io/docs/specification/v3_0/serialization/#query-parameters
             'style': 'form',
             'explode': False,
+            'maxItems': request_types.MAX_PROPERTIES,
         },
         'limit': {'type': 'integer'},
         'marker': {'type': 'string', 'format': 'uuid'},
         'node': request_types.uuid_or_name,
-        'owner': {'type': 'string'},
-        'resource_class': {'type': 'string'},
+        'owner': {
+            'type': 'string',
+            'maxLength': request_types.MAX_STRING_LENGTH
+        },
+        'resource_class': {
+            'type': 'string',
+            'maxLength': request_types.MAX_STRING_LENGTH
+        },
         'sort_dir': request_types.sort_dir,
         # TODO(stephenfin): This could probably be narrower but we need to be
         # careful not to change the response type. If we do, a new microversion
         # will be needed.
-        'sort_key': {'type': 'string'},
-        'state': {'type': 'string'},
+        'sort_key': {
+            'type': 'string',
+            'maxLength': request_types.MAX_STRING_LENGTH
+        },
+        'state': {
+            'type': 'string',
+            'maxLength': request_types.MAX_STRING_LENGTH
+        },
     },
     'required': [],
     'additionalProperties': False,
@@ -104,6 +117,7 @@ show_request_query = {
             # https://swagger.io/docs/specification/v3_0/serialization/#query-parameters
             'style': 'form',
             'explode': False,
+            'maxItems': request_types.MAX_PROPERTIES,
         },
     },
     'required': [],
@@ -123,21 +137,35 @@ create_request_body = {
         'candidate_nodes': {
             'type': ['array', 'null'],
             'items': request_types.uuid_or_name,
+            'maxItems': request_types.MAX_PROPERTIES,
         },
-        'extra': {'type': ['object', 'null']},
+        'extra': {
+            'type': ['object', 'null'],
+            'maxProperties': request_types.MAX_PROPERTIES,
+        },
         # TODO(stephenfin): We'd like to use request_types.uuid_or_name here
         # but doing so will change the error response
-        'name': {'type': ['string', 'null']},
+        'name': {
+            'type': ['string', 'null'],
+            'maxLength': request_types.MAX_STRING_LENGTH
+        },
         # TODO(stephenfin): The docs say that owner is only present in v1.60+,
         # but I can't see anything in the code to prevent this in the POST
         # request, only in the GET request and all responses
-        'owner': {'type': ['string', 'null']},
-        'resource_class': {'type': ['string', 'null'], 'maxLength': 80},
+        'owner': {
+            'type': ['string', 'null'],
+            'maxLength': request_types.MAX_STRING_LENGTH
+        },
+        'resource_class': {
+            'type': ['string', 'null'],
+            'maxLength': request_types.MAX_RES_CLASS_LENGTH
+        },
         'traits': {
             'type': ['array', 'null'],
             'items': response_types.traits,
+            'maxItems': request_types.MAX_PROPERTIES,
         },
-        'uuid': {'type': ['string', 'null']},
+        'uuid': {'type': ['string', 'null'], 'format': 'uuid'},
     },
     # TODO(stephenfin): The resource_class field is required when node is not
     # provided. We'd like to express this here, but doing so will change the
@@ -160,9 +188,15 @@ update_request_body = {
         'type': 'object',
         'properties': {
             'op': {'enum': ['add', 'replace', 'remove']},
-            'path': {'type': 'string'},
+            'path': {
+                'type': 'string',
+                'maxLength': request_types.MAX_STRING_LENGTH
+            },
             'value': {
-                'type': ['string', 'object', 'null', 'integer', 'boolean']
+                'type': ['string', 'object', 'null', 'integer', 'boolean'],
+                'maxLength': request_types.MAX_STRING_LENGTH,
+                'maxProperties': request_types.MAX_PROPERTIES,
+                'maxItems': request_types.MAX_PROPERTIES,
             },
         },
         'required': ['op', 'path'],
