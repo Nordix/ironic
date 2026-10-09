@@ -1,0 +1,6 @@
+---
+security:
+  - |
+    Add more JSON schema validation to harden the allocation API against Denial
+    of Service attacks.
+    `bug 2155050 <https://bugs.launchpad.net/ironic/+bug/2155050>`

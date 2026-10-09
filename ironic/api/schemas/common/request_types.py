@@ -31,3 +31,7 @@ detail = {
 limit = {'type': 'integer', 'min': 0}
 
 sort_dir = {'type': 'string', 'enum': ['asc', 'desc'], 'default': 'asc'}
+
+MAX_PROPERTIES = 255
+MAX_STRING_LENGTH = 255
+MAX_RES_CLASS_LENGTH = 80
